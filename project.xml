@@ -8,6 +8,7 @@
 	<window width="700" height="525" />
 	
 	<haxelib name="openfl" />
+	<haxelib name="actuate" />
 	
 	<assets path="Assets" rename="assets" exclude="openfl.svg" />
 	<icon path="Assets/openfl.svg" />

@@ -14,11 +14,12 @@ import flash.display.Bitmap;
 import flash.net.URLRequest;
 import flash.system.Security;
 import flash.media.SoundTransform;
-
+import motion.easing.Linear;
+import motion.Actuate;
 
 class Main extends Sprite {
 	
-	static var swoop: flash.display.Shape;
+	static var swoop: flash.display.Sprite;
 	static var moveY: Float = 0;
 	static var firing: Bool = false;
 	static var begin_firing:Bool = false;
@@ -32,22 +33,24 @@ class Main extends Sprite {
 	static var level:Int = 1;
 	static var sw = flash.Lib.current.stage.stageWidth;
 	static var sh = flash.Lib.current.stage.stageHeight;
+	static var swoopclosed:Bitmap;
+	static var swoopopen:Bitmap;
 	
 	// Play stats
 	static var fire_rate:Int = 20;
 	
 	public function new () {
 		super ();
+		swoopclosed = new Bitmap(Assets.getBitmapData("assets/swoop.png"));
+		swoopopen = new Bitmap(Assets.getBitmapData("assets/swoop_open.png"));
 		var field  = new flash.display.Shape();
 		field.graphics.beginBitmapFill(Assets.getBitmapData("assets/starfield.png"));
 		field.graphics.drawRect ( 0, 0, 700, 550);
 		field.graphics.endFill ();
 		flash.Lib.current.addChild(field);
 		
-		swoop = new flash.display.Shape();
-		swoop.graphics.beginBitmapFill(Assets.getBitmapData("assets/swoop.png"));
-		swoop.graphics.drawRect ( 0, 0, 100, 51);
-		swoop.graphics.endFill ();
+		swoop = new flash.display.Sprite();
+		swoop.addChild(swoopclosed);
 		swoop.x = 10;
 		flash.Lib.current.addChild(swoop);
 		
@@ -102,6 +105,10 @@ class Main extends Sprite {
 			level_clock++;
 			haxe.Log.clear();
 			trace(level_clock);
+			trace("Fire_Cooldown: "+fire_cooldown);
+			trace("Firing: "+firing);
+			trace("Begin_firing: "+begin_firing);
+			trace("Stop_firing: "+stop_firing);
 			
 			if(level == 1) {		
 				if(level_clock == 5) {
@@ -135,28 +142,15 @@ class Main extends Sprite {
 			swoop.y = 0;
 		
 			if(begin_firing) {
-				var y = swoop.y;
-				flash.Lib.current.removeChild(swoop);
-				swoop.graphics.clear();
-				swoop.graphics.beginBitmapFill(Assets.getBitmapData("assets/swoop_open.png"));
-				swoop.graphics.drawRect ( 0, 0, 100, 51);
-				swoop.graphics.endFill ();
-				swoop.x = 10;
-				swoop.y = y;
-				flash.Lib.current.addChild(swoop);
 				begin_firing = false;
+				swoop.removeChild(swoopclosed);
+				swoop.addChild(swoopopen);
 			}
 			if(stop_firing) {
-				var y = swoop.y;
-				flash.Lib.current.removeChild(swoop);
-				swoop.graphics.clear();
-				swoop.graphics.beginBitmapFill(Assets.getBitmapData("assets/swoop.png"));
-				swoop.graphics.drawRect ( 0, 0, 100, 51);
-				swoop.graphics.endFill ();
-				swoop.x = 10;
-				swoop.y = y;
-				flash.Lib.current.addChild(swoop);
 				stop_firing = false;
+				swoop.removeChild(swoopopen);
+				swoop.addChild(swoopclosed);
+				
 			}
 			if(firing && fire_cooldown == 0) {
 				fire_cooldown = fire_rate;
@@ -199,11 +193,26 @@ class Projectile extends Sprite {
 	public var dir_neg:Bool = false;
 	public var xtraj:Float;
 	public var ytraj:Float;
+	static var sw = flash.Lib.current.stage.stageWidth;
+	static var sh = flash.Lib.current.stage.stageHeight;
 	public function new(ptype:String, startx:Float, starty:Float, direction:Float) {
 		super();
 		this.trajectory = direction * Math.PI / 180;
+		var finalx:Float;
+		var finaly:Float;
+		if(direction > -90 && direction < 90) {
+			// forward
+			finalx = sw;
+			finaly = (Math.tan(this.trajectory)*(finalx-startx));
+		}
+		else {
+			// backward
+			finalx = 0;
+			finaly = (Math.tan(this.trajectory)*(startx));
+			
+		}
 		if(ptype == "bullet") {
-			this.velocity = 5;
+			this.velocity = 50;
 			this.proj = new flash.display.Shape();
 			this.proj.graphics.beginFill ( 0xffffff );
 			this.proj.graphics.drawRect ( 0, 0, 6, 6);
@@ -211,7 +220,7 @@ class Projectile extends Sprite {
 			flash.Lib.current.addChild(this.proj);
 		}
 		else if(ptype == "laser") {
-			this.velocity = 15;
+			this.velocity = 150;
 			this.proj = new flash.display.Shape();
 			this.proj.graphics.beginFill ( 0x5Dd9dF );
 			this.proj.graphics.drawRect ( 0, 0, 12, 3);
@@ -220,14 +229,17 @@ class Projectile extends Sprite {
 		}
 		this.proj.x = startx;
 		this.proj.y = starty;
-		this.xtraj = (this.velocity*Math.cos(this.trajectory));
-		this.ytraj = (this.velocity*Math.sin(this.trajectory));
+		var distance = Math.sqrt(Math.pow(finalx-startx, 2)*Math.pow(finaly-starty,2));
+		var eta = distance/this.velocity;
+		Actuate.tween(this.proj, eta, {x: finalx, y: finaly}).ease(Linear.easeNone);
+		//this.xtraj = (this.velocity*Math.cos(this.trajectory));
+		//this.ytraj = (this.velocity*Math.sin(this.trajectory));
 	
 	}
 	
 	public function updateProj() {
-		this.proj.x += this.xtraj;
-		this.proj.y += this.ytraj;
+		//this.proj.x += this.xtraj;
+		//this.proj.y += this.ytraj;
 	}
 	
 	public function cleanProj() {
@@ -269,11 +281,12 @@ class Enemy extends Sprite {
 		this.enemy.x = startx;
 		this.enemy.y = starty;
 		flash.Lib.current.addChild(this.enemy);
+		Actuate.tween(this.enemy, 10, {x: -1}).ease(Linear.easeNone);
 	}
 	
 	public function updateEnemy() {
 		this.fire_cooldown--;
-		this.enemy.x += this.velocity;
+		//this.enemy.x += this.velocity;
 	}
 	
 	public function cleanEnemy() {
