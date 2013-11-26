@@ -5,22 +5,35 @@ import motion.easing.Linear;
 import motion.Actuate;
 
 class Enemy extends Sprite {
-	public var enemy:flash.display.Shape;
+	public var enemy:flash.display.Sprite;
 	public var etype:String;
 	public var fire_cooldown:Int = 0;
 	public var fire_rate:Int = 40;
 	public var velocity:Float =-2;
+	public var weapon:String;
 	
-	public function new(type:String, startx:Int, starty:Int) {
+	public function new(etype:String, startx:Int, starty:Int) {
 		super();
-		this.enemy = new flash.display.Shape();
-		this.enemy.graphics.beginFill ( 0xaa0000 );
-		this.enemy.graphics.drawRect ( 0, 0, 40, 40);
-		this.enemy.graphics.endFill ();
+		this.etype=etype;
+		var eta:Int = 10;
+		if(this.etype=="xf") {
+			eta = 10;
+			var bit = new Bitmap(Assets.getBitmapData("assets/cross-fighter.png"));
+			this.enemy = new flash.display.Sprite();
+			this.enemy.addChild(bit);
+			this.weapon = "bullet";
+		}
+		else if(this.etype=="wd") {
+			eta = 12;
+			var bit = new Bitmap(Assets.getBitmapData("assets/wedge.png"));
+			this.enemy = new flash.display.Sprite();
+			this.enemy.addChild(bit);
+			this.weapon = "missle";
+		}
 		this.enemy.x = startx;
 		this.enemy.y = starty;
 		flash.Lib.current.addChild(this.enemy);
-		Actuate.tween(this.enemy, 10, {x: -1}).ease(Linear.easeNone);
+		Actuate.tween(this.enemy, eta, {x: -1}).ease(Linear.easeNone);
 	}
 	
 	public function updateEnemy() {

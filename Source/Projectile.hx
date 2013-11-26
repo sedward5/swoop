@@ -45,6 +45,15 @@ class Projectile extends Sprite {
 			this.proj.rotation = direction;
 			flash.Lib.current.addChild(this.proj);
 		}
+		else if(ptype == "missle") {
+			this.velocity = 200;
+			this.proj = new flash.display.Shape();
+			this.proj.graphics.beginFill ( 0xaa3300 );
+			this.proj.graphics.drawRect ( 0, 0, 12, 6);
+			this.proj.graphics.endFill ();
+			this.proj.rotation = direction;
+			flash.Lib.current.addChild(this.proj);
+		}
 		this.proj.x = startx;
 		this.proj.y = starty;
 		var distance = Math.sqrt(Math.pow(finalx-startx, 2)+Math.pow(finaly-starty,2));

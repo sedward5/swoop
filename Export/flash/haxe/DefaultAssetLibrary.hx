@@ -36,6 +36,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		#if flash
 		
+		className.set ("assets/cross-fighter.png", __ASSET__assets_cross_fighter_png);
+		type.set ("assets/cross-fighter.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("assets/space age.ttf", __ASSET__assets_space_age_ttf);
 		type.set ("assets/space age.ttf", Reflect.field (AssetType, "font".toUpperCase ()));
 		className.set ("assets/starfield.png", __ASSET__assets_starfield_png);
@@ -44,10 +46,14 @@ class DefaultAssetLibrary extends AssetLibrary {
 		type.set ("assets/swoop.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("assets/swoop_open.png", __ASSET__assets_swoop_open_png);
 		type.set ("assets/swoop_open.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("assets/wedge.png", __ASSET__assets_wedge_png);
+		type.set ("assets/wedge.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		
 		
 		#elseif html5
 		
+		path.set ("assets/cross-fighter.png", "assets/cross-fighter.png");
+		type.set ("assets/cross-fighter.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("assets/space age.ttf", __ASSET__assets_space_age_ttf);
 		type.set ("assets/space age.ttf", Reflect.field (AssetType, "font".toUpperCase ()));
 		path.set ("assets/starfield.png", "assets/starfield.png");
@@ -56,6 +62,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 		type.set ("assets/swoop.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		path.set ("assets/swoop_open.png", "assets/swoop_open.png");
 		type.set ("assets/swoop_open.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		path.set ("assets/wedge.png", "assets/wedge.png");
+		type.set ("assets/wedge.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		
 		
 		#else
@@ -430,15 +438,19 @@ class DefaultAssetLibrary extends AssetLibrary {
 #if pixi
 #elseif flash
 
+class __ASSET__assets_cross_fighter_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__assets_space_age_ttf extends flash.text.Font { }
 class __ASSET__assets_starfield_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__assets_swoop_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__assets_swoop_open_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
+class __ASSET__assets_wedge_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 
 
 #elseif html5
 
+
 class __ASSET__assets_space_age_ttf extends flash.text.Font { }
+
 
 
 

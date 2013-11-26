@@ -114,29 +114,56 @@ class Main extends Sprite {
 				game_state = "running";
 			}		
 		} 
+		else if(game_state == "next level") {
+			if(s_pressed) {
+				title_text.hideText();
+				subtitle_text.hideText();
+				game_state = "running";
+			}	
+		}
 		else if(game_state == "running") {
 			level_clock++;
-						
+			
+			
+			//
+			// Here be the level layouts
+			//
 			if(level == 1) {		
 				if(level_clock == 5) {
-					enemies.push(new Enemy("box",sw, 100));
-					enemies.push(new Enemy("box",sw, 425));
+					enemies.push(new Enemy("xf",sw, 100));
+					enemies.push(new Enemy("xf",sw, 425));
 				} 
 				else if(level_clock == 35) {
-					enemies.push(new Enemy("box",sw, 120));
-					enemies.push(new Enemy("box",sw, 405));
+					enemies.push(new Enemy("xf",sw, 120));
+					enemies.push(new Enemy("xf",sw, 405));
 				} 
 				else if(level_clock == 65) {
-					enemies.push(new Enemy("box",sw, 140));
-					enemies.push(new Enemy("box",sw, 385));
+					enemies.push(new Enemy("xf",sw, 140));
+					enemies.push(new Enemy("xf",sw, 385));
 				} 
 				else if(level_clock == 95) {
-					enemies.push(new Enemy("box",sw, 160));
-					enemies.push(new Enemy("box",sw, 365));
+					enemies.push(new Enemy("xf",sw, 160));
+					enemies.push(new Enemy("xf",sw, 365));
 				}
 				else if(level_clock == 125) {
-					enemies.push(new Enemy("box",sw, 180));
-					enemies.push(new Enemy("box",sw, 345));
+					enemies.push(new Enemy("xf",sw, 180));
+					enemies.push(new Enemy("xf",sw, 345));
+				}
+				else if(level_clock == 155) {
+					enemies.push(new Enemy("xf",sw, 200));
+					enemies.push(new Enemy("xf",sw, 325));
+				} 
+				else if(level_clock == 185) {
+					enemies.push(new Enemy("wd",sw, 262));
+				}
+				else if(level_clock == 520) {
+					level++;
+					level_text.updateText("Level: "+level);
+					title_text.updateText("Level: "+level);
+					title_text.showText();
+					subtitle_text.showText();
+					level_clock = 0;
+					game_state = "next level";
 				}
 			}
 			// GAME STATE
@@ -180,7 +207,7 @@ class Main extends Sprite {
 			if(enemies.length > 0) {
 				for(i in 0...enemies.length) {
 					if(enemies[i].canFire()) {
-						bullets.push(new Projectile("bullet", enemies[i].enemy.x, enemies[i].enemy.y+20, 180));
+						bullets.push(new Projectile(enemies[i].weapon, enemies[i].enemy.x, enemies[i].enemy.y+20, 180));
 					}
 					enemies[i].updateEnemy();
 					if(enemies[i].cleanEnemy()) {
