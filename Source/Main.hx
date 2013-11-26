@@ -202,17 +202,17 @@ class Projectile extends Sprite {
 		var finaly:Float;
 		if(direction > -90 && direction < 90) {
 			// forward
-			finalx = sw;
-			finaly = (Math.tan(this.trajectory)*(finalx-startx));
+			finalx = sw+1;
+			finaly = (Math.tan(this.trajectory)*(finalx-startx))+starty;
 		}
 		else {
 			// backward
-			finalx = 0;
-			finaly = (Math.tan(this.trajectory)*(startx));
+			finalx = -1;
+			finaly = (Math.tan(this.trajectory)*(startx))+starty;
 			
 		}
 		if(ptype == "bullet") {
-			this.velocity = 50;
+			this.velocity = 150;
 			this.proj = new flash.display.Shape();
 			this.proj.graphics.beginFill ( 0xffffff );
 			this.proj.graphics.drawRect ( 0, 0, 6, 6);
@@ -225,11 +225,12 @@ class Projectile extends Sprite {
 			this.proj.graphics.beginFill ( 0x5Dd9dF );
 			this.proj.graphics.drawRect ( 0, 0, 12, 3);
 			this.proj.graphics.endFill ();
+			this.proj.rotation = direction;
 			flash.Lib.current.addChild(this.proj);
 		}
 		this.proj.x = startx;
 		this.proj.y = starty;
-		var distance = Math.sqrt(Math.pow(finalx-startx, 2)*Math.pow(finaly-starty,2));
+		var distance = Math.sqrt(Math.pow(finalx-startx, 2)+Math.pow(finaly-starty,2));
 		var eta = distance/this.velocity;
 		Actuate.tween(this.proj, eta, {x: finalx, y: finaly}).ease(Linear.easeNone);
 		//this.xtraj = (this.velocity*Math.cos(this.trajectory));
