@@ -36,6 +36,12 @@ class Main extends Sprite {
 	static var swoopclosed:Bitmap;
 	static var swoopopen:Bitmap;
 	
+	// Texts
+	static var title_text:Texter;
+	static var subtitle_text:Texter;
+	static var level_text:Texter;
+	static var score_text:Texter;
+
 	// Play stats
 	static var fire_rate:Int = 20;
 	
@@ -43,17 +49,22 @@ class Main extends Sprite {
 		super ();
 		swoopclosed = new Bitmap(Assets.getBitmapData("assets/swoop.png"));
 		swoopopen = new Bitmap(Assets.getBitmapData("assets/swoop_open.png"));
-		var field  = new flash.display.Shape();
-		field.graphics.beginBitmapFill(Assets.getBitmapData("assets/starfield.png"));
-		field.graphics.drawRect ( 0, 0, 700, 550);
-		field.graphics.endFill ();
+		
+		var fieldbit = new Bitmap(Assets.getBitmapData("assets/starfield.png"));
+		var field  = new flash.display.Sprite();
+		field.addChild(fieldbit);
 		flash.Lib.current.addChild(field);
 		
 		swoop = new flash.display.Sprite();
 		swoop.addChild(swoopclosed);
 		swoop.x = 10;
+		swoop.y = 205;
 		flash.Lib.current.addChild(swoop);
 		
+		title_text = new Texter(110, 205, 75, 0xFFFFFF, "Swooper", true, 0xaa00aa);
+		subtitle_text = new Texter(200, 270, 24, 0xFFFFFF, "Press S to Begin", true, 0xaa00aa);
+		level_text = new Texter(5, 5, 16, 0xFFFFFF, "Level: 1", false, 0xaa00aa);
+		score_text = new Texter(525, 5, 16, 0xFFFFFF, "Score: 0", false, 0xaa00aa);
 		
 		//Start event handlers
 		flash.Lib.current.addEventListener(flash.events.Event.ENTER_FRAME,function(_) Main.onEnterFrame());
@@ -98,18 +109,14 @@ class Main extends Sprite {
 	{
 		if(game_state == "welcome") {
 			if(s_pressed) {
+				title_text.hideText();
+				subtitle_text.hideText();
 				game_state = "running";
 			}		
 		} 
 		else if(game_state == "running") {
 			level_clock++;
-			haxe.Log.clear();
-			trace(level_clock);
-			trace("Fire_Cooldown: "+fire_cooldown);
-			trace("Firing: "+firing);
-			trace("Begin_firing: "+begin_firing);
-			trace("Stop_firing: "+stop_firing);
-			
+						
 			if(level == 1) {		
 				if(level_clock == 5) {
 					enemies.push(new Enemy("box",sw, 100));
@@ -184,129 +191,4 @@ class Main extends Sprite {
 		}
 	}
 	
-}
-
-class Projectile extends Sprite {
-	public var proj:flash.display.Shape;
-	public var velocity:Int;
-	public var trajectory:Float;
-	public var dir_neg:Bool = false;
-	public var xtraj:Float;
-	public var ytraj:Float;
-	static var sw = flash.Lib.current.stage.stageWidth;
-	static var sh = flash.Lib.current.stage.stageHeight;
-	public function new(ptype:String, startx:Float, starty:Float, direction:Float) {
-		super();
-		this.trajectory = direction * Math.PI / 180;
-		var finalx:Float;
-		var finaly:Float;
-		if(direction > -90 && direction < 90) {
-			// forward
-			finalx = sw+1;
-			finaly = (Math.tan(this.trajectory)*(finalx-startx))+starty;
-		}
-		else {
-			// backward
-			finalx = -1;
-			finaly = (Math.tan(this.trajectory)*(startx))+starty;
-			
-		}
-		if(ptype == "bullet") {
-			this.velocity = 150;
-			this.proj = new flash.display.Shape();
-			this.proj.graphics.beginFill ( 0xffffff );
-			this.proj.graphics.drawRect ( 0, 0, 6, 6);
-			this.proj.graphics.endFill ();
-			flash.Lib.current.addChild(this.proj);
-		}
-		else if(ptype == "laser") {
-			this.velocity = 150;
-			this.proj = new flash.display.Shape();
-			this.proj.graphics.beginFill ( 0x5Dd9dF );
-			this.proj.graphics.drawRect ( 0, 0, 12, 3);
-			this.proj.graphics.endFill ();
-			this.proj.rotation = direction;
-			flash.Lib.current.addChild(this.proj);
-		}
-		this.proj.x = startx;
-		this.proj.y = starty;
-		var distance = Math.sqrt(Math.pow(finalx-startx, 2)+Math.pow(finaly-starty,2));
-		var eta = distance/this.velocity;
-		Actuate.tween(this.proj, eta, {x: finalx, y: finaly}).ease(Linear.easeNone);
-		//this.xtraj = (this.velocity*Math.cos(this.trajectory));
-		//this.ytraj = (this.velocity*Math.sin(this.trajectory));
-	
-	}
-	
-	public function updateProj() {
-		//this.proj.x += this.xtraj;
-		//this.proj.y += this.ytraj;
-	}
-	
-	public function cleanProj() {
-		if( this.proj.x > flash.Lib.current.stage.stageWidth -1) {
-			flash.Lib.current.removeChild(this.proj);
-			return true;
-		}
-		else if( this.proj.x <    0 ) {
-			flash.Lib.current.removeChild(this.proj);
-			return true;
-		}
-		else if( this.proj.y > flash.Lib.current.stage.stageHeight -1) {
-			flash.Lib.current.removeChild(this.proj);
-			return true;
-		}
-		else if( this.proj.y <    0 ) {
-			flash.Lib.current.removeChild(this.proj);
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-}
-
-class Enemy extends Sprite {
-	public var enemy:flash.display.Shape;
-	public var etype:String;
-	public var fire_cooldown:Int = 0;
-	public var fire_rate:Int = 40;
-	public var velocity:Float =-2;
-	
-	public function new(type:String, startx:Int, starty:Int) {
-		super();
-		this.enemy = new flash.display.Shape();
-		this.enemy.graphics.beginFill ( 0xaa0000 );
-		this.enemy.graphics.drawRect ( 0, 0, 40, 40);
-		this.enemy.graphics.endFill ();
-		this.enemy.x = startx;
-		this.enemy.y = starty;
-		flash.Lib.current.addChild(this.enemy);
-		Actuate.tween(this.enemy, 10, {x: -1}).ease(Linear.easeNone);
-	}
-	
-	public function updateEnemy() {
-		this.fire_cooldown--;
-		//this.enemy.x += this.velocity;
-	}
-	
-	public function cleanEnemy() {
-		if( this.enemy.x <    0 ) {
-			flash.Lib.current.removeChild(this.enemy);
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	
-	public function canFire() {
-		if(this.fire_cooldown == 0) {
-			this.fire_cooldown=this.fire_rate;
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
 }
